@@ -1,5 +1,7 @@
 package br.edu.ifpb.dac.email.amqp;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -18,9 +20,18 @@ public class EmailEventConsumer {
     }
 
     @RabbitListener(queues = { "email-queue" })
-    public void sendEmail(@Payload Message<Email> message) {
-        Email email = message.getPayload();
-        emailService.sendEmail(email);
+    public void sendEmail(@Payload String json) {
+        try{
+            ObjectMapper mapper = new ObjectMapper();
+            Email email = mapper.readValue(json, Email.class);
+            System.out.println(email);
+            emailService.sendEmail(email);
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+
+
+
     }
 
 }
